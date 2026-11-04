@@ -41,7 +41,7 @@ export default function App() {
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // API Key integrada de forma segura
+  // Tu API Key integrada internamente
   const FIXED_API_KEY = "AQ.Ab8RN6KCXog55W8glu1O7kJ0umGHZYasXy5wVzxU-yeKb_q-bg";
 
   useEffect(() => {
@@ -122,18 +122,21 @@ export default function App() {
     setConversations([]);
   };
 
+  // Función para eliminar una cuenta específica del historial del dispositivo
   const handleDeleteAccount = (e: React.MouseEvent, accountEmail: string) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Evita que se seleccione la cuenta al hacer clic en el bote de basura
     const updated = savedAccounts.filter(acc => acc.email !== accountEmail);
     setSavedAccounts(updated);
     localStorage.setItem('jarvis_accounts_history', JSON.stringify(updated));
   };
 
+  // Función para eliminar un chat específico del historial
   const handleDeleteChat = (e: React.MouseEvent, chatId: string) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Evita que se seleccione el chat al hacer clic en el bote de basura
     const updatedChats = conversations.filter(chat => chat.id !== chatId);
     
     if (updatedChats.length === 0) {
+      // Si se borran todos, creamos uno nuevo vacío
       const newId = `chat-${Date.now()}`;
       const defaultChat: ChatConversation = {
         id: newId,
