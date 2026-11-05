@@ -171,7 +171,8 @@ export default function App() {
     }
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      // Clave de API integrada directamente para evitar problemas de entorno en Vercel
+      const apiKey = "AIzaSyD_TU_API_KEY_AQUI_O_USA_LA_TUTA"; // O puedes usar import.meta.env.VITE_GEMINI_API_KEY si ya configuraste bien Vercel
       const systemInstruction = "Eres JARVIS, una inteligencia artificial avanzada, experta y muy servicial. Responde siempre de forma muy detallada, explicando paso a paso con claridad, estructurando la información con viñetas o puntos clave, y asegurándote de cubrir todos los aspectos que el usuario necesite entender a fondo.";
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -191,6 +192,8 @@ export default function App() {
       const data = await response.json();
       if (data.candidates && data.candidates[0].content.parts[0].text) {
         return { text: data.candidates[0].content.parts[0].text };
+      } else if (data.error) {
+        console.error("Error devuelto por Gemini:", data.error.message);
       }
     } catch (e) {
       console.error("Error API:", e);
