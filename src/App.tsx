@@ -41,9 +41,6 @@ export default function App() {
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Tu API Key integrada internamente
-  const FIXED_API_KEY = "AQ.Ab8RN6KCXog55W8glu1O7kJ0umGHZYasXy5wVzxU-yeKb_q-bg";
-
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversations, isTyping]);
@@ -122,21 +119,18 @@ export default function App() {
     setConversations([]);
   };
 
-  // Función para eliminar una cuenta específica del historial del dispositivo
   const handleDeleteAccount = (e: React.MouseEvent, accountEmail: string) => {
-    e.stopPropagation(); // Evita que se seleccione la cuenta al hacer clic en el bote de basura
+    e.stopPropagation();
     const updated = savedAccounts.filter(acc => acc.email !== accountEmail);
     setSavedAccounts(updated);
     localStorage.setItem('jarvis_accounts_history', JSON.stringify(updated));
   };
 
-  // Función para eliminar un chat específico del historial
   const handleDeleteChat = (e: React.MouseEvent, chatId: string) => {
-    e.stopPropagation(); // Evita que se seleccione el chat al hacer clic en el bote de basura
+    e.stopPropagation();
     const updatedChats = conversations.filter(chat => chat.id !== chatId);
     
     if (updatedChats.length === 0) {
-      // Si se borran todos, creamos uno nuevo vacío
       const newId = `chat-${Date.now()}`;
       const defaultChat: ChatConversation = {
         id: newId,
@@ -177,14 +171,23 @@ export default function App() {
     }
 
     try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       const systemInstruction = "Eres JARVIS, una inteligencia artificial avanzada, experta y muy servicial. Responde siempre de forma muy detallada, explicando paso a paso con claridad, estructurando la información con viñetas o puntos clave, y asegurándote de cubrir todos los aspectos que el usuario necesite entender a fondo.";
-      const fullPrompt = `${systemInstruction}\n\nPregunta del usuario: ${prompt}`;
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${FIXED_API_KEY}`, {
+      
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] })
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: `${systemInstruction}\n\nPregunta del usuario: ${prompt}` }
+              ]
+            }
+          ]
+        })
       });
+      
       const data = await response.json();
       if (data.candidates && data.candidates[0].content.parts[0].text) {
         return { text: data.candidates[0].content.parts[0].text };
